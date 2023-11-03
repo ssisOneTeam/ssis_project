@@ -1,5 +1,9 @@
 from langchain.document_loaders import DirectoryLoader
 from langchain.document_loaders import UnstructuredMarkdownLoader
+
+#상위경로에서 가져오기(test)
+import sys
+sys.path.append("./")
 from utility.util import extract_title 
 
 #Document Object
@@ -9,18 +13,25 @@ import os
 import json
 import re
 
-list_of_db_work = os.listdir("DB_work")
-os.path.dirname(os.getcwd())
-
 whole_list_of_documents = []
 
 ####### readme.md 제외하고 db Directory에서 file들 가져와서 UnstructuredMarkdownLoader에 넣고 Parsing해서 list에 저장(whole_list_of_documents)
 ###### 이것도 함수로 wrap
+
+####set DB File Name
+db_storage_path = "./DB_work"
+list_of_db_work = os.listdir(db_storage_path)
+
 for directory in list_of_db_work :
     if directory == "readme.md" :
         continue
     
-    absolute_path= os.path.abspath(os.path.join('DB_work/',directory))
+    # print(directory)
+
+    absolute_path= os.path.abspath(os.path.join(db_storage_path, directory))
+
+    # print(absolute_path)
+
     directory_loader = DirectoryLoader(path=absolute_path, glob="*.md", loader_cls=UnstructuredMarkdownLoader)
     documents = directory_loader.load()
 
@@ -51,7 +62,7 @@ for document in whole_list_of_documents :
 #Embedding
 ############# 이것도 함수로 따로 wrap하는게 나을듯?
 from langchain.embeddings.sentence_transformer import SentenceTransformerEmbeddings
-embedding = SentenceTransformerEmbeddings(model_name='BM-K/KoSimCSE-roberta', model_kwargs={'device':'cuda'}, encode_kwargs={'normalize_embeddings':True})
+embedding = SentenceTransformerEmbeddings(model_name='./BM-K/KoSimCSE-roberta', model_kwargs={'device':'cuda'}, encode_kwargs={'normalize_embeddings':True})
 
 
 #Chroma Settings
@@ -70,7 +81,7 @@ vectorstore = Chroma(
     client= chroma_client,
     collection_name= collection_name,
     embedding_function= embedding,
-    persist_directory="./chroma"
+    persist_directory="../chroma"
 )
 
 print("There are", vectorstore._collection.count(), "in the collection.")

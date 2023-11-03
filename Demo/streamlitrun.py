@@ -22,7 +22,7 @@ vectorstore = Chroma(
     client= chroma_client,
     collection_name= collection_name,
     embedding_function= embedding,
-    persist_directory="./chroma"
+    persist_directory="../chroma"
 )
 
 #### Retriever
